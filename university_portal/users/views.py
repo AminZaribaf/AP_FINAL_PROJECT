@@ -4,6 +4,7 @@ from django.views import View
 from .models import User
 
 
+
 class RegisterUserView(View):
     def post(self, request):
         username = request.POST.get('username')
@@ -76,3 +77,4 @@ class PasswordResetConfirmView(View):
         del password_reset_codes[username]
 
         return JsonResponse({'message': 'Password reset successfully'})
+

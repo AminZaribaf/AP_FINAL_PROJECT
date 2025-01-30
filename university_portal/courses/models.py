@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import Student
 
 class Department(models.Model):
@@ -85,6 +86,7 @@ class CourseClassroom(models.Model):
 
     def __str__(self):
         return f"{self.course.name} in {self.classroom.name}"
+
 
 
 

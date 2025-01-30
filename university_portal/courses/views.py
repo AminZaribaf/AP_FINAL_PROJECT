@@ -271,3 +271,4 @@ class AdminDeleteCourseView(View):
 
         course.delete()
         return JsonResponse({'message': 'Course deleted successfully'})
+
