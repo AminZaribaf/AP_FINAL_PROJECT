@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت دروس</title>
+    <link rel="stylesheet" href="/static/manage.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>مدیریت دروس</h1>
+
+        <!-- افزودن درس جدید -->
+        <section id="add-course">
+            <h2>افزودن درس جدید</h2>
+            <form id="addCourseForm">
+                <div class="form-group">
+                    <label for="courseName">نام درس</label>
+                    <input type="text" id="courseName" name="courseName" required>
+                </div>
+                <div class="form-group">
+                    <label for="courseCode">کد درس</label>
+                    <input type="text" id="courseCode" name="courseCode" required>
+                </div>
+                <div class="form-group">
+                    <label for="faculty">دانشکده</label>
+                    <input type="text" id="faculty" name="faculty" required>
+                </div>
+                <div class="form-group">
+                    <label for="professor">استاد</label>
+                    <input type="text" id="professor" name="professor" required>
+                </div>
+                <div class="form-group">
+                    <label for="units">تعداد واحد</label>
+                    <input type="number" id="units" name="units" required>
+                </div>
+                <div class="form-group">
+                    <label for="days">روزهای برگزاری</label>
+                    <input type="text" id="days" name="days" required>
+                </div>
+                <div class="form-group">
+                    <label for="hours">ساعات برگزاری</label>
+                    <input type="text" id="hours" name="hours" required>
+                </div>
+                <div class="form-group">
+                    <label for="capacity">ظرفیت</label>
+                    <input type="number" id="capacity" name="capacity" required>
+                </div>
+                <button type="submit">افزودن درس</button>
+            </form>
+        </section>
+
+        <!-- جستجو و مدیریت دروس ثبت‌شده -->
+        <section id="manage-courses">
+            <h2>مدیریت دروس ثبت‌شده</h2>
+            <input type="text" id="search" placeholder="جستجو بر اساس نام، کد یا دانشکده">
+            <button id="searchButton">جستجو</button>
+            <table id="coursesTable">
+                <thead>
+                    <tr>
+                        <th>نام درس</th>
+                        <th>کد درس</th>
+                        <th>دانشکده</th>
+                        <th>استاد</th>
+                        <th>ظرفیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="coursesList">
+                    <!-- لیست دروس اینجا نمایش داده می‌شود -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- گزارش وضعیت دروس -->
+        <section id="course-status">
+            <h2>گزارش وضعیت دروس</h2>
+            <canvas id="courseChart" width="400" height="200"></canvas>
+        </section>
+
+        <!-- مدیریت کاربران -->
+        <section id="manage-users">
+            <h2>مدیریت کاربران</h2>
+            <button onclick="window.location.href='userManagement.html'">مدیریت کاربران</button>
+        </section>
+    </div>
+
+    <script src="/static/manage.js"></script>
+</body>
+</html>
