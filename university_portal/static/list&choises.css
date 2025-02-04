@@ -1,0 +1,137 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: right;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.header select, .header input {
+    padding: 8px;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button.remove {
+    background-color: #FF5733;
+}
+
+.notification {
+    background-color: #f44336;
+    color: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+/* نوار منو */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.nav-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-item {
+    text-align: center;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    width: 120px;
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    background-color: #f1f1f1;
+}
+
+.nav-item p {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.nav-icon {
+    width: 30px;
+    height: 30px;
+}
+
+/* حذف خط زیر لینک‌ها */
+.nav-item a {
+    text-decoration: none; /* حذف خط زیر لینک‌ها */
+    color: inherit; /* رنگ متن را از عنصر والد می‌گیرد */
+}
+
+/* جلوگیری از بنفش شدن هنگام کلیک */
+.nav-item a:active {
+    color: inherit; /* رنگ لینک را حفظ می‌کند */
+    text-decoration: none; /* خط زیر را حفظ می‌کند */
+}
+
+/* افکت hover */
+.nav-item:hover span {
+    color: #007bff;
+}
