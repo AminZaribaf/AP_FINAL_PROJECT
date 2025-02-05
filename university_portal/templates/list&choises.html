@@ -1,8 +1,78 @@
+{#<!DOCTYPE html>#}
+{#<html lang="fa">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="csrf-token" content="{{ csrf_token }}">#}
+{#    <title>انتخاب واحد</title>#}
+{#    <link rel="stylesheet" href="/static/list&choises.css">#}
+{#</head>#}
+{#<body>#}
+{#    <div class="container">#}
+{#        <h1>صفحه اصلی انتخاب واحد</h1>#}
+{##}
+{#        <!-- نوار منو -->#}
+{#        <div class="nav-bar">#}
+{#            <a href="list&choises.html" class="nav-item">#}
+{#                <span>انتخاب واحد</span>#}
+{#            </a>#}
+{#            <a href="/api/courses/weekly-schedule/" class="nav-item">#}
+{#                <span>برنامه هفتگی</span>#}
+{#            </a>#}
+{#            <a href="manage.html" class="nav-item">#}
+{#                <span>مدیریت دروس</span>#}
+{#            </a>#}
+{#            <a href="login.html" class="nav-item">#}
+{#                <span>ورود</span>#}
+{#            </a>#}
+{#            <a href="register.html" class="nav-item">#}
+{#                <span>ثبت‌نام</span>#}
+{#            </a>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <div class="container">#}
+{#        <!-- فیلتر انتخاب دانشکده و جستجو -->#}
+{#        <div class="header">#}
+{#            <label for="faculty">انتخاب دانشکده:</label>#}
+{#            <select id="faculty" onchange="updateCourses()">#}
+{#                <option value="">همه دانشکده‌ها</option>#}
+{#                <option value="computer">دانشکده کامپیوتر</option>#}
+{#                <option value="electrical">دانشکده برق</option>#}
+{#                <option value="mechanical">دانشکده مکانیک</option>#}
+{#            </select>#}
+{##}
+{#            <input type="text" id="search" placeholder="جستجو بر اساس نام یا کد درس" onkeyup="searchCourses()">#}
+{#            <p>تعداد واحدهای انتخابی: <span id="selectedCredits">0</span> واحد</p>#}
+{#        </div>#}
+{##}
+{#        <!-- جدول دروس -->#}
+{#        <table>#}
+{#            <thead>#}
+{#                <tr>#}
+{#                    <th>عملیات</th>#}
+{#                    <th>ظرفیت</th>#}
+{#                    <th>نام استاد</th>#}
+{#                    <th>زمان کلاس</th>#}
+{#                    <th>زمان امتحان</th>#}
+{#                    <th>واحد</th>#}
+{#                    <th>نام درس</th>#}
+{#                    <th>کد درس</th>#}
+{#                </tr>#}
+{#            </thead>#}
+{#            <tbody id="courseList">#}
+{#                <!-- دروس به صورت داینامیک اینجا اضافه می‌شوند -->#}
+{#            </tbody>#}
+{#        </table>#}
+{#    </div>#}
+{##}
+{#    <script src="/static/list&choises.js"></script>#}
+{#</body>#}
+{#</html>#}
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <title>انتخاب واحد</title>
     <link rel="stylesheet" href="/static/list&choises.css">
 </head>
@@ -15,13 +85,13 @@
             <a href="list&choises.html" class="nav-item">
                 <span>انتخاب واحد</span>
             </a>
-            <a href="schedules.html" class="nav-item">
+            <a href="/api/courses/weekly-schedule/" class="nav-item">
                 <span>برنامه هفتگی</span>
             </a>
             <a href="manage.html" class="nav-item">
                 <span>مدیریت دروس</span>
             </a>
-            <a href="login.html" class="nav-item">
+            <a href="/api/users/login/" class="nav-item">
                 <span>ورود</span>
             </a>
             <a href="register.html" class="nav-item">
