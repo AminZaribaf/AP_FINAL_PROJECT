@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>افزودن درس جدید</title>
+    <link rel="stylesheet" href="/static/manage.css">
+</head>
+<body>
+    <h2>فرم افزودن درس جدید</h2>
+
+    <form method="post" id="AddCourseForm">
+        {% csrf_token %}
+        <label for="courseName">نام درس:</label>
+        <input type="text" id="courseName" name="course_name" required><br><br>
+
+        <label for="courseCode">کد درس:</label>
+        <input type="text" id="courseCode" name="course_code" required><br><br>
+
+        <label for="department">دانشکده:</label>
+        <input type="text" id="department" name="department_id" required><br><br>
+
+        <label for="instructor">استاد:</label>
+        <input type="text" id="instructor" name="instructor_id" required><br><br>
+
+        <label for="credits">تعداد واحد:</label>
+        <input type="number" id="credits" name="credits" required><br><br>
+
+        <label for="remaining_capacity">ظرفیت باقی مانده:</label>
+        <input type="number" id="remaining_capacity" name="remaining_capacity" required><br><br>
+
+        <label for="capacity">ظرفیت:</label>
+        <input type="number" id="capacity" name="capacity" required><br><br>
+
+        <label for="classTime">زمان کلاس:</label>
+        <input type="text" id="classTime" name="class_time" required><br><br>
+
+        <label for="examTime">زمان امتحان:</label>
+        <input type="text" id="examTime" name="exam_time" required><br><br>
+
+        <button type="submit">افزودن درس</button>
+    </form>
+
+    <script src="/static/admin-addcourse.js"></script>
+</body>
+</html>

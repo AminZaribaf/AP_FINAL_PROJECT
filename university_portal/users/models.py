@@ -1,12 +1,10 @@
 from django.db import models
 
-
 class UserLevel(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
-
 
 class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
@@ -17,13 +15,13 @@ class User(models.Model):
         return self.username
 
     @classmethod
-    def create_user(cls, username, password, user_level_id=None):
+    def create_user(cls, username, password, user_level=None):
         # Custom method to create a user with hashed password
         from django.contrib.auth.hashers import make_password
         user = cls(
             username=username,
             password=make_password(password),
-            user_level_id=user_level_id
+            user_level=user_level  # استفاده از شیء UserLevel، نه شناسه آن
         )
         user.save()
         return user
@@ -44,4 +42,3 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.student_number})"
-
