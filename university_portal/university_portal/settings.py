@@ -22,8 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-(683u1sd(eb6-n1^84lkt%k@$b3%%f*z4seb_1w9xacy^z!6ki'
 
-
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -41,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'courses',
+    'corsheaders',
+    'rest_framework'
 
 ]
 
@@ -52,6 +52,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:8000',  # آدرس فرانت‌اند شما
 ]
 
 ROOT_URLCONF = 'university_portal.urls'
@@ -59,7 +63,7 @@ ROOT_URLCONF = 'university_portal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,8 +125,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+# settings.py
+
+# این خط معمولاً به طور پیش‌فرض موجوده، ولی مطمئن شو که این تنظیمات درست هستن.
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # اگر فایل‌های استاتیک در پوشه‌ی 'static' در ریشه پروژه قرار دارند
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py
+SECURE_SSL_REDIRECT = False  # ریدایرکت تمام درخواست‌ها به HTTPS
+APPEND_SLASH=False
