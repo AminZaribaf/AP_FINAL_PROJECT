@@ -4,10 +4,17 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
-
+from django.shortcuts import render
 from users.models import Student
-from .models import Course, Enrollment, Prerequisite, CoRequisite, Department, Instructor
+from .models import Course, Enrollment, Prerequisite, CoRequisite, Department, Instructor, WeeklySchedule
+from django.views import View
+from .forms import AddCourseForm
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import AdminAddCourseSerializer, AddCourseResponseSerializer
+from .models import Course, Instructor, Department
 
 class CourseListView(View):
     def get(self, request):
@@ -27,32 +34,72 @@ class CourseListView(View):
         return JsonResponse({'courses': course_list}, safe=False)
 
 
+
+
+# class AddCourseToEnrollmentView(View):
+#     def post(self, request):
+#         # Get data from request
+#         student_id = request.POST.get('student_id')
+#         course_id = request.POST.get('course_id')
+#
+#         # Validate student and course
+#         try:
+#             student = Student.objects.get(id=student_id)
+#         except Student.DoesNotExist:
+#             return JsonResponse({'error': 'Student not found'}, status=404)
+#
+#         try:
+#             course = Course.objects.get(id=course_id)
+#         except Course.DoesNotExist:
+#             return JsonResponse({'error': 'Course not found'}, status=404)
+#
+#         # Check remaining capacity
+#         if course.remaining_capacity <= 0:
+#             return JsonResponse({'error': 'Course is full'}, status=400)
+#
+#         # Check if the course is already added
+#         if Enrollment.objects.filter(student=student, course=course).exists():
+#             return JsonResponse({'error': 'Course already added'}, status=400)
+#
+#         # Add course to enrollment
+#         Enrollment.objects.create(student=student, course=course)
+#         course.remaining_capacity -= 1
+#         course.save()
+#
+#         return JsonResponse({'message': 'Course added successfully'})
+import json
+from django.http import JsonResponse
+from django.views import View
+from .models import Student, Course, Enrollment
+
 class AddCourseToEnrollmentView(View):
     def post(self, request):
-        # Get data from request
-        student_id = request.POST.get('student_id')
-        course_id = request.POST.get('course_id')
+        # دریافت داده‌ها از درخواست
+        data = json.loads(request.body)  # از request.body برای دریافت JSON استفاده می‌کنیم
+        student_id = data.get('student_id')
+        course_id = data.get('course_id')
 
-        # Validate student and course
+        # اعتبارسنجی دانشجو
         try:
             student = Student.objects.get(id=student_id)
         except Student.DoesNotExist:
             return JsonResponse({'error': 'Student not found'}, status=404)
 
+        # اعتبارسنجی درس
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
             return JsonResponse({'error': 'Course not found'}, status=404)
 
-        # Check remaining capacity
+        # بررسی ظرفیت باقی‌مانده
         if course.remaining_capacity <= 0:
             return JsonResponse({'error': 'Course is full'}, status=400)
 
-        # Check if the course is already added
+        # بررسی اینکه آیا درس قبلاً اضافه شده است
         if Enrollment.objects.filter(student=student, course=course).exists():
             return JsonResponse({'error': 'Course already added'}, status=400)
 
-        # Add course to enrollment
+        # اضافه کردن درس به لیست دروس انتخابی دانشجو
         Enrollment.objects.create(student=student, course=course)
         course.remaining_capacity -= 1
         course.save()
@@ -168,24 +215,31 @@ class StudentEnrollmentView(View):
 
 
 class WeeklyScheduleView(View):
-    @method_decorator(login_required)
     def get(self, request):
+        student_id = request.GET.get('student_id')
+        first_name = request.GET.get('first_name')
+        phone_number = request.GET.get('phone_number')
+
+        # بررسی ارسال شدن تمام مقادیر مورد نیاز
+        if not student_id or not first_name or not phone_number:
+            return JsonResponse({'error': 'Missing required parameters'}, status=400)
+
+        # جستجوی دانشجو با مشخصات داده شده
         try:
-            # Ensure the user is associated with a Student profile
-            student = Student.objects.get(user=request.user)
+            student = Student.objects.get(id=student_id, first_name=first_name, phone_number=phone_number)
         except Student.DoesNotExist:
-            return JsonResponse({'error': 'Student profile not found for this user'}, status=404)
+            return JsonResponse({'error': 'No matching student found'}, status=404)
 
-        # Fetch the weekly schedule
-        weekly_schedule = student.weeklyschedules.select_related('course').all()
+        # دریافت برنامه هفتگی دانشجو
+        weekly_schedule = WeeklySchedule.objects.select_related('course').filter(student=student)
 
-        # Prepare the response data
+        # آماده‌سازی داده‌ها برای پاسخ
         schedule_data = [
             {
                 'course': schedule.course.name,
                 'day_of_week': schedule.day_of_week,
-                'start_time': schedule.start_time.strftime('%H:%M'),
-                'end_time': schedule.end_time.strftime('%H:%M'),
+                'start_time': schedule.start_time.strftime('%H:%M') if schedule.start_time else None,
+                'end_time': schedule.end_time.strftime('%H:%M') if schedule.end_time else None,
             }
             for schedule in weekly_schedule
         ]
@@ -193,39 +247,47 @@ class WeeklyScheduleView(View):
         return JsonResponse({'schedule': schedule_data}, status=200)
 
 
-class AdminAddCourseView(View):
+
+
+class AdminAddCourseView(APIView):
+    def get(self, request):
+        form = AddCourseForm()
+        return render(request , "admin-addcourse.html" , {'form': form})
     def post(self, request):
-        course_name = request.POST.get('name')
-        course_code = request.POST.get('code')
-        credits = int(request.POST.get('credits'))
-        instructor_id = request.POST.get('instructor_id')
-        department_id = request.POST.get('department_id')
-        capacity = int(request.POST.get('capacity'))
+        serializer = AdminAddCourseSerializer(data=request.data)
+        if serializer.is_valid():
+            course_name = serializer.validated_data['course_name']
+            course_code = serializer.validated_data['course_code']
+            instructor_id = serializer.validated_data['instructor_id']
+            department_id = serializer.validated_data['department_id']
+            credits = serializer.validated_data['credits']
+            remaining_capacity = serializer.validated_data['remaining_capacity']
+            capacity = serializer.validated_data['capacity']
+            class_time = serializer.validated_data['class_time']
+            exam_time = serializer.validated_data['exam_time']
 
-        # Validate instructor
-        try:
+            # ایجاد درس جدید
             instructor = Instructor.objects.get(id=instructor_id)
-        except Instructor.DoesNotExist:
-            return JsonResponse({'error': 'Instructor not found'}, status=404)
-
-        # Validate department
-        try:
             department = Department.objects.get(id=department_id)
-        except Department.DoesNotExist:
-            return JsonResponse({'error': 'Department not found'}, status=404)
 
-        # Create course
-        course = Course.objects.create(
-            name=course_name,
-            code=course_code,
-            credits=credits,
-            instructor=instructor,
-            department=department,
-            capacity=capacity,
-            remaining_capacity=capacity
-        )
+            course = Course.objects.create(
+                name=course_name,
+                code=course_code,
+                credits=credits,
+                instructor=instructor,
+                department=department,
+                capacity=capacity,
+                remaining_capacity=remaining_capacity,
+                class_time=class_time,
+                exam_time=exam_time,
+            )
 
-        return JsonResponse({'message': 'Course added successfully', 'course_id': course.id})
+            # بازگشت پاسخ موفقیت‌آمیز
+            response_serializer = AddCourseResponseSerializer(course)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class AdminEditCourseView(View):
@@ -258,17 +320,60 @@ class AdminEditCourseView(View):
         return JsonResponse({'message': 'Course updated successfully'})
 
 
+# views.py
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.views import View
+from .models import Course, Enrollment
+from .forms import DeleteCourseForm
+
+
+
 class AdminDeleteCourseView(View):
-    def post(self, request, course_id):
+     def post(self, request, course_id):
+         try:
+             course = Course.objects.get(id=course_id)
+         except Course.DoesNotExist:
+             return JsonResponse({'error': 'Course not found'}, status=404)
+
+         course.delete()
+         return JsonResponse({'message': 'Course deleted successfully'})
+class DepartmentCreateView(View):
+    def post(self, request):
+        department_name = request.POST.get('name')
+
+        # بررسی اینکه دپارتمان از قبل وجود دارد یا نه
+        if Department.objects.filter(name=department_name).exists():
+            return JsonResponse({'error': 'Department already exists'}, status=400)
+
+        # ایجاد دپارتمان جدید
+        department = Department.objects.create(name=department_name)
+        return JsonResponse({'message': 'Department created successfully', 'department_id': department.id})
+
+class InstructorCreateView(View):
+    def post(self, request):
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        department_id = request.POST.get('department_id')
+
+        if not first_name or not last_name or not email or not department_id:
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
         try:
-            course = Course.objects.get(id=course_id)
-        except Course.DoesNotExist:
-            return JsonResponse({'error': 'Course not found'}, status=404)
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            return JsonResponse({'error': 'Department not found'}, status=404)
 
-        # Check if students are enrolled in the course
-        if Enrollment.objects.filter(course=course).exists():
-            return JsonResponse({'error': 'Cannot delete course with enrolled students'}, status=400)
+        if Instructor.objects.filter(email=email, department=department).exists():
+            return JsonResponse({'error': 'Instructor already exists in this department'}, status=400)
 
-        course.delete()
-        return JsonResponse({'message': 'Course deleted successfully'})
+        instructor = Instructor.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            department=department
+        )
+
+        return JsonResponse({'message': 'Instructor created successfully', 'instructor_id': instructor.id}, status=201)
 

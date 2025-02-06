@@ -1,5 +1,4 @@
 from django.db import models
-
 from users.models import Student
 
 class Department(models.Model):
@@ -14,6 +13,9 @@ class Instructor(models.Model):
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -86,7 +88,6 @@ class CourseClassroom(models.Model):
 
     def __str__(self):
         return f"{self.course.name} in {self.classroom.name}"
-
 
 
 
