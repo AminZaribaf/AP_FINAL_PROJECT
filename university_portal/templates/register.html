@@ -7,57 +7,101 @@
     <link rel="stylesheet" href="/static/register.css">
 </head>
 <body>
-    <h2>فرم ثبت‌نام دانشجویی</h2>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <ul class="navbar-menu">
+            <li><a href="/api/users/register/">ثبت نام</a></li>
+            <li><a href="/api/users/login/">ورود</a></li>
+            <li class="dropdown">
+                <a href="#">مدیریت دروس</a>
+                <ul class="dropdown-menu">
+                    <li><a href="/api/courses/admin/add-course/">اضافه کردن درس</a></li>
+                    <li><a href="/api/courses/admin/delete-course/">حذف درس</a></li>
+                    <li><a href="/api/courses/admin/edit-course/">ویرایش درس</a></li>
+                </ul>
+            </li>
+            <li><a href="api/courses/admin/weekly-schedule/">برنامه هفتگی</a></li>
+            <li><a href="/api/courses/">لیست دروس و انتخاب واحد</a></li>
+        </ul>
+    </nav>
 
-    <form method="post" id="registerForm">
-        {% csrf_token %}
-        <label for="username">نام کاربری:</label>
-        <input type="text" id="username" name="username" placeholder="نام کاربری" required><br><br>
+    <div class="container">
+        <h2>فرم ثبت‌نام دانشجویی</h2>
 
-        <label for="password">کلمه عبور:</label>
-        <input type="password" id="password" name="password" placeholder="کلمه عبور" required><br><br>
+        <form method="post" id="registerForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">نام کاربری:</label>
+                <input type="text" id="username" name="username" placeholder="نام کاربری" required>
+            </div>
 
-        <label for="user_level_id">سطح کاربری:</label>
-        <select id="user_level_id" name="user_level_id" required>
-            <option value="1">دانشجو</option>
-            <option value="2">استاد</option>
-        </select><br><br>
+            <div class="form-group">
+                <label for="password">کلمه عبور:</label>
+                <input type="password" id="password" name="password" placeholder="کلمه عبور" required>
+            </div>
 
-        <label for="first_name">نام:</label>
-        <input type="text" id="first_name" name="first_name" placeholder="نام" required><br><br>
+            <div class="form-group">
+                <label for="user_level_id">سطح کاربری:</label>
+                <select id="user_level_id" name="user_level_id" required>
+                    <option value="1">دانشجو</option>
+                    <option value="2">استاد</option>
+                </select>
+            </div>
 
-        <label for="last_name">نام خانوادگی:</label>
-        <input type="text" id="last_name" name="last_name" placeholder="نام خانوادگی" required><br><br>
+            <div class="form-group">
+                <label for="first_name">نام:</label>
+                <input type="text" id="first_name" name="first_name" placeholder="نام" required>
+            </div>
 
-        <label for="email">ایمیل:</label>
-        <input type="email" id="email" name="email" placeholder="ایمیل" required><br><br>
+            <div class="form-group">
+                <label for="last_name">نام خانوادگی:</label>
+                <input type="text" id="last_name" name="last_name" placeholder="نام خانوادگی" required>
+            </div>
 
-        <label for="national_id">کد ملی:</label>
-        <input type="text" id="national_id" name="national_id" placeholder="کد ملی" required><br><br>
+            <div class="form-group">
+                <label for="email">ایمیل:</label>
+                <input type="email" id="email" name="email" placeholder="ایمیل" required>
+            </div>
 
-        <label for="phone_number">شماره تلفن:</label>
-        <input type="text" id="phone_number" name="phone_number" placeholder="شماره تلفن" required><br><br>
+            <div class="form-group">
+                <label for="national_id">کد ملی:</label>
+                <input type="text" id="national_id" name="national_id" placeholder="کد ملی" required>
+            </div>
 
-        <label for="major">رشته تحصیلی:</label>
-        <input type="text" id="major" name="major" placeholder="رشته تحصیلی" required><br><br>
+            <div class="form-group">
+                <label for="phone_number">شماره تلفن:</label>
+                <input type="text" id="phone_number" name="phone_number" placeholder="شماره تلفن" required>
+            </div>
 
-        <label for="year">سال تحصیلی:</label>
-        <input type="number" id="year" name="year" placeholder="سال تحصیلی" required><br><br>
+            <div class="form-group">
+                <label for="major">رشته تحصیلی:</label>
+                <input type="text" id="major" name="major" placeholder="رشته تحصیلی" required>
+            </div>
 
-        <label for="max_units">حداکثر واحدها:</label>
-        <input type="number" id="max_units" name="max_units" placeholder="حداکثر واحدها" required><br><br>
+            <div class="form-group">
+                <label for="year">سال تحصیلی:</label>
+                <input type="number" id="year" name="year" placeholder="سال تحصیلی" required>
+            </div>
 
-        <label for="student_number">شماره دانشجویی:</label>
-        <input type="text" id="student_number" name="student_number" placeholder="شماره دانشجویی" required><br><br>
+            <div class="form-group">
+                <label for="max_units">حداکثر واحدها:</label>
+                <input type="number" id="max_units" name="max_units" placeholder="حداکثر واحدها" required>
+            </div>
 
-        <label for="admission_year">سال ورود:</label>
-        <input type="number" id="admission_year" name="admission_year" placeholder="سال ورود" required><br><br>
+            <div class="form-group">
+                <label for="student_number">شماره دانشجویی:</label>
+                <input type="text" id="student_number" name="student_number" placeholder="شماره دانشجویی" required>
+            </div>
 
-        <button type="submit">ثبت‌نام</button>
-    </form>
-    <script src="/static/register.js"></script>}
+            <div class="form-group">
+                <label for="admission_year">سال ورود:</label>
+                <input type="number" id="admission_year" name="admission_year" placeholder="سال ورود" required>
+            </div>
+
+            <button type="submit" class="submit-btn">ثبت‌نام</button>
+        </form>
+    </div>
+
+    <script src="/static/register.js"></script>
 </body>
 </html>
-
-
-

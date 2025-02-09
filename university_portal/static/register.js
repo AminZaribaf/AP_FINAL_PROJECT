@@ -1,67 +1,65 @@
-document.getElementById('registrationForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+document.getElementById('registerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-    var errorMessages = [];
-
-    var firstName = document.getElementById('firstName').value;
-    var lastName = document.getElementById('lastName').value;
-    var idNumber = document.getElementById('idNumber').value;
-    var userCode = document.getElementById('userCode').value;
-    var email = document.getElementById('email').value;
-    var phone = document.getElementById('phone').value;
-    var role = document.getElementById('role').value;
-
-    // اعتبارسنجی ورودی‌ها
-    if (firstName === "" || lastName === "") {
-        errorMessages.push("لطفا نام و نام خانوادگی را وارد کنید.");
-    }
-
-    if (!/^\d{10}$/.test(idNumber)) {
-        errorMessages.push("شماره ملی باید 10 رقم باشد.");
-    }
-
-    if (userCode === "") {
-        errorMessages.push("کد دلخواه (نام کاربری) الزامی است.");
-    }
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-        errorMessages.push("فرمت ایمیل معتبر نیست.");
-    }
-
-    if (!/^(?:\+98|0)?9\d{9}$/.test(phone)) {
-        errorMessages.push("فرمت شماره تلفن معتبر نیست.");
-    }
-
-    if (errorMessages.length > 0) {
-        document.getElementById('errorMessages').innerHTML = errorMessages.join('<br>');
-    } else {
-        document.getElementById('errorMessages').innerHTML = "";
-
-        // ارسال داده‌ها به سرور با استفاده از Fetch API
-        const formData = new FormData();
-        formData.append('first_name', firstName);
-        formData.append('last_name', lastName);
-        formData.append('id_number', idNumber);
-        formData.append('user_code', userCode);
-        formData.append('email', email);
-        formData.append('phone', phone);
-        formData.append('role', role);
-
-        fetch("/register/", {  // اطمینان حاصل کنید که مسیر `/register/` صحیح است
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())  // تبدیل پاسخ به JSON
-        .then(data => {
-            // در اینجا داده‌های موفقیت‌آمیز یا خطا بررسی می‌شوند
-            if (data.success) {
-                window.location.href = "/login/";  // انتقال به صفحه ورود در صورت موفقیت
-            } else {
-                document.getElementById('errorMessages').innerHTML = "خطا در ثبت‌نام: " + data.error; // نمایش خطا
+    // گرفتن CSRF Token از کوکی
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-        })
-        .catch(error => {
-            console.error("Error:", error); // نمایش خطا در صورت بروز مشکل
-        });
+        }
+        return cookieValue;
     }
+
+    const csrftoken = getCookie('csrftoken'); // گرفتن CSRF Token
+
+    const formData = {
+         username: document.getElementById('username').value,
+         password: document.getElementById('password').value,
+         user_level_id: document.getElementById('user_level_id').value, // فقط شناسه user_level ارسال می‌شود
+          first_name: document.getElementById('first_name').value,
+           last_name: document.getElementById('last_name').value,
+           email: document.getElementById('email').value,
+          national_id: document.getElementById('national_id').value,
+          phone_number: document.getElementById('phone_number').value,
+          major: document.getElementById('major').value,
+          year: document.getElementById('year').value,
+          max_units: document.getElementById('max_units').value,
+         student_number: document.getElementById('student_number').value,
+         admission_year: document.getElementById('admission_year').value
+     };
+
+
+    fetch('/api/users/register/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken  // اضافه کردن CSRF Token به هدر
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errData => {
+                throw new Error('Server returned error: ' + JSON.stringify(errData));
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        console.log('Student Number:', formData.student_number)
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
 });
+
+
+

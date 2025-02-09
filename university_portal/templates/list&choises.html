@@ -1,69 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-    <title>انتخاب واحد</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="student-id" content="{{ student_id }}">
+    <title>لیست دروس</title>
     <link rel="stylesheet" href="/static/list&choises.css">
 </head>
 <body>
-    <div class="container">
-        <h1>صفحه اصلی انتخاب واحد</h1>
-
-        <!-- نوار منو -->
-        <div class="nav-bar">
-            <a href="list&choises.html" class="nav-item">
-                <span>انتخاب واحد</span>
-            </a>
-            <a href="/api/courses/weekly-schedule/" class="nav-item">
-                <span>برنامه هفتگی</span>
-            </a>
-            <a href="manage.html" class="nav-item">
-                <span>مدیریت دروس</span>
-            </a>
-            <a href="/api/users/login/" class="nav-item">
-                <span>ورود</span>
-            </a>
-            <a href="register.html" class="nav-item">
-                <span>ثبت‌نام</span>
-            </a>
-        </div>
-    </div>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <ul class="navbar-menu">
+            <li><a href="/api/users/register/">ثبت نام</a></li>
+            <li><a href="/api/users/login/">ورود</a></li>
+            <li class="dropdown">
+                <a href="#">مدیریت دروس</a>
+                <ul class="dropdown-menu">
+                    <li><a href="/api/courses/admin/add-course/">اضافه کردن درس</a></li>
+                    <li><a href="/api/courses/admin/delete-course/">حذف درس</a></li>
+                    <li><a href="/api/courses/admin/edit-course/">ویرایش درس</a></li>
+                </ul>
+            </li>
+            <li><a href="/api/courses/weekly-schedule/">برنامه هفتگی</a></li>
+            <li><a href="#">لیست دروس و انتخاب واحد</a></li>
+        </ul>
+    </nav>
 
     <div class="container">
-        <!-- فیلتر انتخاب دانشکده و جستجو -->
-        <div class="header">
-            <label for="faculty">انتخاب دانشکده:</label>
-            <select id="faculty" onchange="updateCourses()">
-                <option value="">همه دانشکده‌ها</option>
-                <option value="computer">دانشکده کامپیوتر</option>
-                <option value="electrical">دانشکده برق</option>
-                <option value="mechanical">دانشکده مکانیک</option>
-            </select>
+        <h2>لیست دروس</h2>
 
-            <input type="text" id="search" placeholder="جستجو بر اساس نام یا کد درس" onkeyup="searchCourses()">
-            <p>تعداد واحدهای انتخابی: <span id="selectedCredits">0</span> واحد</p>
-        </div>
+        <!-- Filter Section -->
+        <form method="GET">
+            <div class="filter-container">
+                <label for="department">انتخاب دانشکده:</label>
+                <select name="department_id" id="department" onchange="this.form.submit()">
+                    <option value="">همه دانشکده‌ها</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}" {% if department.id == department_id %}selected{% endif %}>
+                            {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
 
-        <!-- جدول دروس -->
-        <table>
+                <label for="search">جستجو:</label>
+                <input type="text" name="query" id="search" value="{{ search_query }}" placeholder="جستجو بر اساس نام یا کد درس" onchange="this.form.submit()">
+            </div>
+            <button type="submit" class="filter-btn">فیلتر کردن</button>
+        </form>
+
+        <!-- Course List -->
+        <table id="courseTable">
             <thead>
                 <tr>
-                    <th>عملیات</th>
+                    <th>کد درس</th>
+                    <th>نام درس</th>
+                    <th>واحد</th>
                     <th>ظرفیت</th>
-                    <th>نام استاد</th>
                     <th>زمان کلاس</th>
                     <th>زمان امتحان</th>
-                    <th>واحد</th>
-                    <th>نام درس</th>
-                    <th>کد درس</th>
+                    <th>نام استاد</th>
+                    <th>عملیات</th>
                 </tr>
             </thead>
-            <tbody id="courseList">
-                <!-- دروس به صورت داینامیک اینجا اضافه می‌شوند -->
+            <tbody>
+                {% for course_with_enrollment in courses_with_enrollment %}
+                <tr id="course-{{ course_with_enrollment.course.id }}">
+                    <td>{{ course_with_enrollment.course.code }}</td>
+                    <td>{{ course_with_enrollment.course.name }}</td>
+                    <td>{{ course_with_enrollment.course.credits }}</td>
+                    <td>{{ course_with_enrollment.course.capacity }} ({{ course_with_enrollment.enrolled_students }} taken)</td>
+                    <td>{{ course_with_enrollment.course.class_time }}</td>
+                    <td>{{ course_with_enrollment.course.exam_time }}</td>
+                    <td>{{ course_with_enrollment.course.instructor.first_name }} {{ course_with_enrollment.course.instructor.last_name }}</td>
+                    <td>
+                        <button class="add" onclick="addCourse({{ course_with_enrollment.course.id }}, '{{ course_with_enrollment.course.code }}', {{ course_with_enrollment.course.credits }})">افزودن</button>
+                        <button class="remove" onclick="dropCourse({{ course_with_enrollment.course.id }}, '{{ course_with_enrollment.course.code }}', {{ course_with_enrollment.course.credits }})" style="display:none;">حذف</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">هیچ درسی برای نمایش وجود ندارد.</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
+
+        <!-- Total Units -->
+        <div id="totalUnits">تعداد واحدهای انتخاب‌شده: 0</div>
     </div>
 
     <script src="/static/list&choises.js"></script>

@@ -21,10 +21,18 @@ urlpatterns = [
     # Add the URL pattern for the admin add course view
     path('admin/add-course/', AdminAddCourseView.as_view(), name='admin_add_course'),
     # Add the URL pattern for the admin edit course view
-    path('admin/edit-course/<int:course_id>/', AdminEditCourseView.as_view(), name='admin_edit_course'),
-    # Add the URL pattern for the admin delete course view
-    path('admin/delete-course/<int:course_id>/', AdminDeleteCourseView.as_view(), name='admin_delete_course'),
 
-    path('departments/create/', DepartmentCreateView.as_view(), name='create_department'),
+
+    path('admin/edit-course/', AdminEditCourseView.as_view(), name='admin_edit_course'),
+    path('admin/edit-course/<str:course_code>/', AdminEditCourseView.as_view(), name='admin_edit_course_with_code'),
+
+
+
+# Add the URL pattern for the admin delete course vie
+    path('admin/delete-course/', AdminDeleteCourseView.as_view(), name='admin_delete_course'),
+    path('admin/delete-course/<str:course_code>/', AdminDeleteCourseView.as_view(),
+         name='admin_delete_course_with_code'),
+
+path('departments/create/', DepartmentCreateView.as_view(), name='create_department'),
     path('instructors/create/', InstructorCreateView.as_view(), name='create_instructor'),
 ]
