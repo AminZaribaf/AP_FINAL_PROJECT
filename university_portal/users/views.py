@@ -1,37 +1,8 @@
-from random import randint
-from django.http import JsonResponse
-from django.views import View
-from .models import User , Student
-from django.shortcuts import render
 
-from django.views import View
-from django.http import JsonResponse
-import json
 from .forms import registerForm
-# views.py
-from django.http import JsonResponse
+
 from django.shortcuts import render
-from .models import User, Student
-from .serializer import UserSerializer, StudentSerializer
-from django.views import View
-import json
 
-# views.py
-from django.http import JsonResponse
-from django.shortcuts import render
-from .models import User, Student, UserLevel
-from .serializer import UserSerializer, StudentSerializer
-from django.views import View
-import json
-
-# views.py
-from django.http import JsonResponse
-from .models import User, Student, UserLevel
-from .serializer import UserSerializer, StudentSerializer
-from django.views import View
-import json
-
-# views.py
 from django.http import JsonResponse
 from .models import User, Student, UserLevel
 from .serializer import UserSerializer, StudentSerializer
@@ -117,13 +88,11 @@ class LoginUserView(View):
         except User.DoesNotExist:
             return JsonResponse({'error': 'نام کاربری نا معتبر'}, status=401)
 
-
-        # حالا برای اعتبارسنجی پسورد هش‌شده از check_password کمک می‌گیریم
-        if password==user.password:
+        if password == user.password:
+            request.session['user_id'] = user.id  # ذخیره شناسه در session
             return JsonResponse({'message': 'Login successful', 'user_id': user.id}, status=200)
         else:
             return JsonResponse({'error': 'رمز عبور نامعتبر'}, status=401)
-
 
 password_reset_codes = {}
 

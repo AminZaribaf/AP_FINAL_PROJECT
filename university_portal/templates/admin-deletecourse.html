@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حذف درس</title>
+    <link rel="stylesheet" href="/static/admin-removecourse.css">
+</head>
+<body>
+    <div class="container">
+        <h2>حذف درس</h2>
+        <p>لطفاً کد درس را وارد کنید:</p>
+        <form method="GET" action="">
+            <label for="course_code">کد درس:</label>
+            <input type="text" id="course_code" name="course_code" required>
+            <button type="submit">جستجو</button>
+        </form>
+    </div>
+
+    {% if request.GET.course_code %}
+    <div class="container">
+        <h2>آیا از حذف درس اطمینان دارید؟</h2>
+        <form method="POST" action="{% url 'admin_delete_course_with_code' course_code=request.GET.course_code %}">
+            {% csrf_token %}
+            <button type="submit">حذف</button>
+        </form>
+    </div>
+    {% endif %}
+</body>
+</html>

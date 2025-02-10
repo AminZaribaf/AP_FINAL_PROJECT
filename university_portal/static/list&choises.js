@@ -1,209 +1,162 @@
-
-const courses = [
-    { code: 'ENG101', name: 'مقدمه‌ای بر مهندسی', credits: 3, faculty: 'computer', time: '10:00-12:00', exam: '15:00', instructor: 'دکتر احمدی', totalCapacity: 30, enrolled: 23, prerequisites: [], coRequisites: [] },
-    { code: 'SCI201', name: 'فیزیک 1', credits: 4, faculty: 'mechanical', time: '8:00-10:00', exam: '10:00', instructor: 'دکتر رضایی', totalCapacity: 28, enrolled: 25, prerequisites: ['ENG101'], coRequisites: [] },
-    { code: 'ART301', name: 'تاریخ هنر', credits: 2, faculty: 'electrical', time: '16:00-18:00', exam: '17:00', instructor: 'دکتر نوری', totalCapacity: 25, enrolled: 25, prerequisites: [], coRequisites: [] },
-    { code: 'ENG102', name: 'ریاضیات مهندسی', credits: 4, faculty: 'computer', time: '12:00-14:00', exam: '14:00', instructor: 'دکتر صالحی', totalCapacity: 30, enrolled: 29, prerequisites: ['ENG101'], coRequisites: [] },
-    { code: 'SCI202', name: 'شیمی عمومی', credits: 3, faculty: 'mechanical', time: '8:00-10:00', exam: '13:00', instructor: 'دکتر موسوی', totalCapacity: 30, enrolled: 20, prerequisites: [], coRequisites: [] }
-];
-
 let selectedCourses = [];
-let totalCredits = 0;
-const maxCredits = 18; // سقف واحد مجاز
+let totalUnits = 0;
 
-function updateCourses() {
-    const faculty = document.getElementById('faculty').value;
-    const search = document.getElementById('search').value.toLowerCase();
-    const filteredCourses = courses.filter(course => {
-        return (faculty === '' || course.faculty === faculty) &&
-               (course.name.toLowerCase().includes(search) || course.code.toLowerCase().includes(search));
-    });
-    displayCourses(filteredCourses);
+document.addEventListener("DOMContentLoaded", function() {
+    fetchDepartments();
+    fetchCourses();
+});
+
+// Fetch departments for the department select dropdown
+function fetchDepartments() {
+    fetch('/api/departments/')
+        .then(response => response.json())
+        .then(data => {
+            const departmentSelect = document.getElementById('department');
+            data.departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.id;
+                option.textContent = department.name;
+                departmentSelect.appendChild(option);
+            });
+        });
 }
 
+// Fetch courses based on department and search query
+function fetchCourses() {
+    const departmentId = document.getElementById('department').value;
+    const searchQuery = document.getElementById('search').value;
+
+    const url = new URL('/api/courses/', window.location.origin);
+    if (departmentId) url.searchParams.append('department_id', departmentId);
+    if (searchQuery) url.searchParams.append('query', searchQuery);
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  // نمایش داده‌ها در کنسول برای بررسی
+            displayCourses(data.courses);
+        });
+}
+
+// Display courses in the table
 function displayCourses(courses) {
-    const courseList = document.getElementById('courseList');
-    courseList.innerHTML = '';
+    const courseTableBody = document.getElementById('courseTable').getElementsByTagName('tbody')[0];
+    courseTableBody.innerHTML = '';  // Clear existing rows
+
     courses.forEach(course => {
-        const courseItem = document.createElement('tr');
-        const isSelected = isCourseSelected(course.code);
-        courseItem.innerHTML = `
-            <td>
-                <button onclick="addCourse('${course.code}')" id="add-${course.code}" ${isSelected ? 'disabled' : ''}>افزودن</button>
-                <button onclick="removeCourse('${course.code}')">حذف</button>
-            </td>
-            <td>${course.enrolled}/${course.totalCapacity}</td>
-            <td>${course.instructor}</td>
-            <td>${course.time}</td>
-            <td>${course.exam}</td>
-            <td>${course.credits}</td>
-            <td>${course.name}</td>
+        const row = document.createElement('tr');
+        row.id = `course-${course.id}`;  // اضافه کردن id منحصر به فرد برای هر ردیف
+        row.innerHTML = `
             <td>${course.code}</td>
+            <td>${course.name}</td>
+            <td>${course.credits}</td>
+            <td>${course.capacity} (${course.capacity - course.remaining_capacity} taken)</td>
+            <td>${course.class_time || 'N/A'}</td>
+            <td>${course.exam_time || 'N/A'}</td>
+            <td>${course.instructor_name || 'N/A'}</td>
+            <td>
+                <button class="add" onclick="addCourse(${course.id}, '${course.code}', ${course.credits})">افزودن</button>
+                <button class="remove" onclick="dropCourse(${course.id}, '${course.code}', ${course.credits})" style="display:none;">حذف</button>
+            </td>
         `;
-        courseList.appendChild(courseItem);
+        courseTableBody.appendChild(row);
     });
 }
 
-function isCourseSelected(courseCode) {
-    return selectedCourses.some(course => course.code === courseCode);
-}
+// Add course to the enrollment
+// Add course to the enrollment
+// Add course to the enrollment
+function addCourse(courseId, courseCode, credits) {
+    const studentId = document.querySelector('meta[name="student-id"]').getAttribute('content');  // یا از روش داده `data` استفاده کن
+    console.log("Student ID:", studentId);  // بررسی اینکه آیا student_id درست دریافت می‌شود
 
-function getCSRFToken() {
-    const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (csrfElement) {
-        return csrfElement.value;
-    } else {
-        console.error('CSRF token element not found');
-        return null;
-    }
-}
+    const requestData = {
+        student_id: studentId,
+        course_id: courseId
+    };
 
-function addCourse(courseCode) {
-    const course = courses.find(course => course.code === courseCode);
-    const studentId = 123;  // باید ID دانشجو باشد (مثلاً از اطلاعات کاربر که وارد سیستم شده است)
+    console.log("Sending data:", requestData);  // اضافه کردن این خط برای بررسی داده‌ها
 
-    // جلوگیری از انتخاب دوباره یک درس
-    if (isCourseSelected(courseCode)) {
-        showNotification('این درس قبلاً انتخاب شده است!');
-        return;
-    }
-
-    // بررسی سقف واحد
-    if (totalCredits + course.credits > maxCredits) {
-        showNotification('مجموع واحدهای انتخابی بیشتر از سقف مجاز است!');
-        return;
-    }
-
-    // بررسی ظرفیت
-    if (course.enrolled >= course.totalCapacity) {
-        showNotification('ظرفیت درس پر شده است!');
-        return;
-    }
-
-    // بررسی پیشنیازها
-    for (let prereq of course.prerequisites) {
-        if (!selectedCourses.some(selected => selected.code === prereq)) {
-            showNotification('پیشنیازهای درس رعایت نشده است!');
-            return;
-        }
-    }
-
-    // بررسی همنیازها
-    for (let coReq of course.coRequisites) {
-        if (!selectedCourses.some(selected => selected.code === coReq)) {
-            showNotification('همنیازی‌های درس رعایت نشده است!');
-            return;
-        }
-    }
-
-    // ارسال درخواست AJAX به سرور برای افزودن درس
-    fetch('add/', {
+    fetch('/api/courses/add/', {
         method: 'POST',
-        headers: {
+        headers: addCsrfHeader({
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()  // ارسال توکن CSRF برای جلوگیری از حملات CSRF
-        },
-        body: JSON.stringify({ student_id: studentId, course_id: course.id })  // ارسال اطلاعات به سرور
-    })
-    .then(response => response.json())  // انتظار پاسخ به صورت JSON
-    .then(data => {
-        if (data.message) {
-            // اگر درخواست موفق بود
-            selectedCourses.push(course);  // درس را به لیست انتخابی اضافه می‌کنیم
-            totalCredits += course.credits;  // تعداد واحدها را به روز می‌کنیم
-            updateSelectedInfo();  // بروزرسانی اطلاعات دروس انتخابی
-            updateCourses();  // بروزرسانی لیست دروس
-            showNotification('درس با موفقیت اضافه شد!');  // نمایش پیام موفقیت
-        } else {
-            showNotification(data.error);  // اگر خطایی رخ داد
-        }
-    })
-    .catch(error => {
-        showNotification('خطا در اضافه کردن درس!');
-        console.error('Error:', error);
-    });
-}
-
-
-function removeCourse(courseCode) {
-    const course = courses.find(course => course.code === courseCode);
-    const studentId = 123;  // باید ID دانشجو باشد (مثلاً از اطلاعات کاربر که وارد سیستم شده است)
-
-    // ارسال درخواست AJAX به سرور برای حذف درس
-    fetch('drop/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()  // ارسال توکن CSRF برای جلوگیری از حملات CSRF
-        },
-        body: JSON.stringify({ student_id: studentId, course_id: course.id })  // ارسال اطلاعات به سرور
+        }),
+        body: JSON.stringify(requestData)  // ارسال داده‌ها به صورت JSON
     })
     .then(response => response.json())
     .then(data => {
-        if (data.message) {
-            // اگر درخواست موفق بود
-            const courseIndex = selectedCourses.findIndex(course => course.code === courseCode);
-            if (courseIndex !== -1) {
-                selectedCourses.splice(courseIndex, 1);  // حذف درس از لیست
-                totalCredits -= course.credits;  // به‌روزرسانی تعداد واحدها
-                updateSelectedInfo();  // بروزرسانی اطلاعات دروس انتخابی
-                updateCourses();  // بروزرسانی لیست دروس
-                showNotification(data.message);  // نمایش پیام موفقیت
-            }
+        if (data.message === 'Course added successfully') {
+            selectedCourses.push({ id: courseId, code: courseCode, credits: credits });
+            totalUnits += credits;
+            document.getElementById('totalUnits').textContent = `تعداد واحدهای انتخاب‌شده: ${totalUnits}`;
+
+            // Change the "add" button to "remove" for the current course
+            const row = document.getElementById(`course-${courseId}`);
+            const addButton = row.querySelector('.add');
+            const removeButton = row.querySelector('.remove');
+            addButton.style.display = 'none';
+            removeButton.style.display = 'inline-block';
+
+            alert('درس افزوده شد');
         } else {
-            showNotification(data.error);  // نمایش پیام خطا
+            alert(data.error);
         }
-    })
-    .catch(error => {
-        showNotification('خطا در حذف درس!');
-        console.error('Error:', error);
     });
 }
-function getCSRFToken() {
-    const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (csrfElement) {
-        return csrfElement.value;
-    } else {
-        console.error('CSRF token element not found');
-        return null;
+
+// Drop course from the enrollment
+// Drop course from the enrollment
+function dropCourse(courseId, courseCode, credits) {
+    const studentId = document.querySelector('meta[name="student-id"]').getAttribute('content');  // یا از روش داده `data` استفاده کن
+
+    // بررسی داده‌های ارسالی در کنسول
+    console.log("Sending data for course drop:", { student_id: studentId, course_id: courseId });
+
+    fetch('/api/courses/drop/', {
+        method: 'POST',
+        headers: addCsrfHeader({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({
+            student_id: studentId,
+            course_id: courseId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Course dropped successfully') {
+            selectedCourses = selectedCourses.filter(course => course.id !== courseId);
+            totalUnits -= credits;
+            document.getElementById('totalUnits').textContent = `تعداد واحدهای انتخاب‌شده: ${totalUnits}`;
+
+            // Change the "remove" button to "add" for the current course
+            const row = document.getElementById(`course-${courseId}`);
+            const addButton = row.querySelector('.add');
+            const removeButton = row.querySelector('.remove');
+            addButton.style.display = 'inline-block';
+            removeButton.style.display = 'none';
+
+            alert('درس حذف شد');
+        } else {
+            alert(data.error);
+        }
+    });
+}
+
+
+// Function to get CSRF token from meta tag
+function getCsrfToken() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    return csrfToken;
+}
+
+// Add CSRF token to fetch headers
+function addCsrfHeader(headers) {
+    const csrfToken = getCsrfToken();
+    if (!headers) {
+        headers = {};
     }
-}
-function updateSelectedInfo() {
-    document.getElementById('selectedCredits').textContent = totalCredits;
-}
-
-function searchCourses() {
-    updateCourses();
-}
-
-function showNotification(message) {
-    // نمایش پیام هشدار به کاربر
-    const notification = document.createElement('div');
-    notification.classList.add('notification');
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// بارگذاری اولیه
-updateCourses();
-
-function addCourseToSchedule(courseCode, day, time) {
-    const course = courses.find(course => course.code === courseCode);  // فرض کنید اطلاعات درس را از آرایه courses می‌گیرید
-
-    if (course) {
-        // ایجاد کلید برای ذخیره در localStorage
-        const cellId = day + "_" + time;
-
-        // ذخیره اطلاعات درس در localStorage
-        localStorage.setItem(cellId, course.name);  // ذخیره نام درس
-
-        // نمایش درس در جدول برنامه هفتگی
-        document.getElementById(cellId).innerText = course.name;
-
-        showNotification('درس به برنامه هفتگی افزوده شد!');
-    }
+    headers['X-CSRFToken'] = csrfToken;
+    return headers;
 }

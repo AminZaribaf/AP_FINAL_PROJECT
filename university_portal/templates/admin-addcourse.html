@@ -4,42 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>افزودن درس جدید</title>
-    <link rel="stylesheet" href="/static/manage.css">
+    <link rel="stylesheet" href="/static/admin-addcourse.css">
 </head>
 <body>
-    <h2>فرم افزودن درس جدید</h2>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <ul class="navbar-menu">
+            <li><a href="/api/users/register/">ثبت نام</a></li>
+            <li><a href="/api/users/login/">ورود</a></li>
+            <li class="dropdown">
+                <a href="#">مدیریت دروس</a>
+                <ul class="dropdown-menu">
+                    <li><a href="/api/courses/admin/add-course/">اضافه کردن درس</a></li>
+                    <li><a href="/api/courses/admin/delete-course/">حذف درس</a></li>
+                    <li><a href="/api/courses/admin/edit-course/">ویرایش درس</a></li>
+                </ul>
+            </li>
+            <li><a href="api/courses/admin/weekly-schedule/">برنامه هفتگی</a></li>
+            <li><a href="/api/courses/">لیست دروس و انتخاب واحد</a></li>
+        </ul>
+    </nav>
 
-    <form method="post" id="AddCourseForm">
-        {% csrf_token %}
-        <label for="courseName">نام درس:</label>
-        <input type="text" id="courseName" name="course_name" required><br><br>
+    <div class="container">
+        <h2>فرم افزودن درس جدید</h2>
 
-        <label for="courseCode">کد درس:</label>
-        <input type="text" id="courseCode" name="course_code" required><br><br>
+        <form method="post" id="AddCourseForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="courseName">نام درس:</label>
+                <input type="text" id="courseName" name="course_name" required>
+            </div>
 
-        <label for="department">دانشکده:</label>
-        <input type="text" id="department" name="department_id" required><br><br>
+            <div class="form-group">
+                <label for="courseCode">کد درس:</label>
+                <input type="text" id="courseCode" name="course_code" required>
+            </div>
 
-        <label for="instructor">استاد:</label>
-        <input type="text" id="instructor" name="instructor_id" required><br><br>
+            <div class="form-group">
+                <label for="department">دانشکده:</label>
+                <input type="text" id="department" name="department_id" required>
+            </div>
 
-        <label for="credits">تعداد واحد:</label>
-        <input type="number" id="credits" name="credits" required><br><br>
+            <div class="form-group">
+                <label for="instructor">استاد:</label>
+                <input type="text" id="instructor" name="instructor_id" required>
+            </div>
 
-        <label for="remaining_capacity">ظرفیت باقی مانده:</label>
-        <input type="number" id="remaining_capacity" name="remaining_capacity" required><br><br>
+            <div class="form-group">
+                <label for="credits">تعداد واحد:</label>
+                <input type="number" id="credits" name="credits" required>
+            </div>
 
-        <label for="capacity">ظرفیت:</label>
-        <input type="number" id="capacity" name="capacity" required><br><br>
+            <div class="form-group">
+                <label for="remaining_capacity">ظرفیت باقی مانده:</label>
+                <input type="number" id="remaining_capacity" name="remaining_capacity" required>
+            </div>
 
-        <label for="classTime">زمان کلاس:</label>
-        <input type="text" id="classTime" name="class_time" required><br><br>
+            <div class="form-group">
+                <label for="capacity">ظرفیت:</label>
+                <input type="number" id="capacity" name="capacity" required>
+            </div>
 
-        <label for="examTime">زمان امتحان:</label>
-        <input type="text" id="examTime" name="exam_time" required><br><br>
+            <div class="form-group">
+                <label for="classTime">زمان کلاس:</label>
+                <input type="text" id="classTime" name="class_time" required>
+            </div>
 
-        <button type="submit">افزودن درس</button>
-    </form>
+            <div class="form-group">
+                <label for="examTime">زمان امتحان:</label>
+                <input type="text" id="examTime" name="exam_time" required>
+            </div>
+
+            <button type="submit" class="submit-btn">افزودن درس</button>
+        </form>
+    </div>
 
     <script src="/static/admin-addcourse.js"></script>
 </body>
